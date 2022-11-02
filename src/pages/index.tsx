@@ -11,8 +11,27 @@ import usersAvatar from '../assets/users-avatar-example.png';
 import logoImg from '../assets/logo.svg';
 import iconCheckImg from '../assets/icon-check.svg';
 import { api } from '../lib/api';
+import { FormEvent, useState } from 'react';
 
 export default function Home(props: HomeProps) {
+  const [poolTitle, setPoolTitle] = useState('');
+
+  const createPool = async (event: FormEvent) => {
+    event.preventDefault();
+    try {
+      const response = await api.post("/pools", {
+        title: poolTitle
+      });
+      const { code } = response.data;
+      await navigator.clipboard.writeText(code);
+      alert('Bolão criado com sucesso, o código foi criado para a área de transferência!');
+      setPoolTitle('');
+    } catch (error) {
+      console.log(error);
+      alert('Falha ao criar o bolão, tente novamente!');
+    }
+  }
+
   return (
     <div className="max-w-[1124px] h-screen mx-auto grid grid-cols-2 gap-28 items-center">
       <main>
@@ -36,12 +55,14 @@ export default function Home(props: HomeProps) {
           </strong>
         </div>
 
-        <form className='mt-10 flex gap-2'>
+        <form onSubmit={createPool} className='mt-10 flex gap-2'>
           <input 
-            className='flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm' 
+            className='flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100' 
             type="text" 
             required 
-            placeholder='Qual nome do seu bolão?' 
+            placeholder='Qual nome do seu bolão?'
+            value={poolTitle}
+            onChange={event => setPoolTitle(event.target.value)}
           />        
 
           <button 
